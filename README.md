@@ -5,6 +5,12 @@ Helps to calculate overlaps between samples. Works in two modes:
 * **normal-only** would calculate overlaps within supplied samples list
 * **normal and tumors mode** would calculate overlaps within each group of samples, and then it would get tumor results and filter any regions from normal one.
 
+## Installation
+
+```shell
+go install github.com/overerd/clincnv_overlapper@latest
+```
+
 ### Arguments
 
 #### Required:

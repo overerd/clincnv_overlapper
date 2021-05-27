@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	version = "0"
+	version = "0.0.5"
 	build   = "0"
 )
 
