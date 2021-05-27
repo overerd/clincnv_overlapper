@@ -43,6 +43,3 @@ clincnv_overlapper \
     --output-separator "\t" \
     --output data/clincnv_overlaps.tsv
 ```
-
-### TODO
-Dependency `akamensky/argparse` would be soon replaced.
