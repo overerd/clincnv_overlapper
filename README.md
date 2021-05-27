@@ -32,12 +32,12 @@ go install github.com/overerd/clincnv_overlapper@latest
 ```shell
 clincnv_overlapper \
     --normals data/normals_list.txt \
-    [--tumors data/tumors_list.txt] \
-    [--bed your_panel.bed] \
-    [--bed-gene-index 5] \
-    [--genes-exclude-filter data/gene_filters.txt] \
+    --tumors data/tumors_list.txt \
+    --bed your_panel.bed \
+    --bed-gene-index 5 \
+    --genes-exclude-filter data/gene_filters.txt \
     --min-overlap 2 \
-    [--buffer-size 1048576] \
+    --buffer-size 1048576 \
     --max-qvalue 0.05 \
     --output-field-separator "; " \
     --output-separator "\t" \
