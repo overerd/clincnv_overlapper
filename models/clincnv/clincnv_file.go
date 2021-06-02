@@ -13,6 +13,8 @@ type TableFile struct {
 
 	Map map[string]map[uint64]map[uint64]*Item `json:"-"`
 
+	ReversedMap map[string]map[uint64]map[uint64]*Item `json:"-"`
+
 	reGermline *regexp.Regexp
 	reSomatic  *regexp.Regexp
 }
@@ -25,8 +27,22 @@ func (b *TableFile) FindClosestItem(chr string, start, end uint64) (found bool, 
 	for l, left := range items {
 		if l <= start {
 			for r := range left {
-				if r >= end {
+				if r >= end || r >= start {
 					right = left[r]
+				}
+			}
+		}
+	}
+
+	if right == nil {
+		items = b.ReversedMap[chr]
+
+		for l, left := range items {
+			if l >= end {
+				for r := range left {
+					if r <= start || r <= end {
+						right = left[r]
+					}
 				}
 			}
 		}
@@ -35,6 +51,22 @@ func (b *TableFile) FindClosestItem(chr string, start, end uint64) (found bool, 
 	if right != nil {
 		found = true
 		item = right
+	}
+
+	return
+}
+
+func (b *TableFile) FindIntervalItems(chr string, start, end uint64) (results []*Item) {
+	items := b.Map[chr]
+
+	for l, left := range items {
+		if l <= start {
+			for r := range left {
+				if r >= end || r >= start {
+					results = append(results, left[r])
+				}
+			}
+		}
 	}
 
 	return
@@ -111,11 +143,20 @@ func (b *TableFile) readLine(line []byte) (err error) {
 		b.Map[item.Chr] = make(map[uint64]map[uint64]*Item)
 	}
 
+	if _, ok := b.ReversedMap[item.Chr]; !ok {
+		b.ReversedMap[item.Chr] = make(map[uint64]map[uint64]*Item)
+	}
+
 	if _, ok := b.Map[item.Chr][item.Start]; !ok {
 		b.Map[item.Chr][item.Start] = make(map[uint64]*Item)
 	}
 
+	if _, ok := b.ReversedMap[item.Chr][item.End]; !ok {
+		b.ReversedMap[item.Chr][item.End] = make(map[uint64]*Item)
+	}
+
 	b.Map[item.Chr][item.Start][item.End] = &item
+	b.ReversedMap[item.Chr][item.End][item.Start] = &item
 
 	return
 }
@@ -141,6 +182,7 @@ func (b *TableFile) parseFile(bufferSize uint) (err error) {
 	scanner.Buffer(buffer, int(bufferSize)*10)
 
 	b.Map = make(map[string]map[uint64]map[uint64]*Item)
+	b.ReversedMap = make(map[string]map[uint64]map[uint64]*Item)
 
 	for scanner.Scan() {
 		err = b.readLine(scanner.Bytes())

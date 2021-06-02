@@ -15,6 +15,10 @@ type WriterOptions struct {
 	FieldSeparator string
 }
 
+type SamplesWriter struct {
+	options *WriterOptions
+}
+
 type Writer struct {
 	options WriterOptions
 }
@@ -23,8 +27,26 @@ func (o *WriterOptions) Validate() (err error) {
 	return
 }
 
+func (w *SamplesWriter) WriteSamples(separateResults *map[string]*map[string][]AnnotatedRegionData) (err error) {
+	for sampleName := range *separateResults {
+		writer := CreateCSVWriter(WriterOptions{
+			Path:           fmt.Sprintf("%s/%s.bed", w.options.Path, sampleName),
+			Separator:      w.options.Separator,
+			FieldSeparator: w.options.FieldSeparator,
+		})
+
+		err = writer.WriteRegions((*separateResults)[sampleName])
+
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
 func (w *Writer) WriteRegions(regions *map[string][]AnnotatedRegionData) (err error) {
-	fmt.Println(fmt.Sprintf("\nWriting output to file '%s'...", w.options.Path))
+	fmt.Print(fmt.Sprintf(" [+] '%s'...", w.options.Path))
 	f, err := os.Create(w.options.Path)
 
 	defer func(f *os.File) {
@@ -140,7 +162,7 @@ func (w *Writer) WriteRegions(regions *map[string][]AnnotatedRegionData) (err er
 		}
 	}
 
-	fmt.Println(fmt.Sprintf("\n %d bytes written\n", writtenBytes))
+	fmt.Println(fmt.Sprintf(" %d bytes", writtenBytes))
 
 	err = writer.Flush()
 
@@ -153,4 +175,10 @@ func CreateCSVWriter(options WriterOptions) (writer *Writer) {
 	}
 
 	return
+}
+
+func CreateMultiCSVWriter(options WriterOptions) *SamplesWriter {
+	return &SamplesWriter{
+		options: &options,
+	}
 }

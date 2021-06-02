@@ -40,7 +40,12 @@ func calculateOverlaps(
 	normalsFileListPath, tumorsFileListPath string,
 	options regions.Options,
 	writerOptions regions.WriterOptions,
-) (results *map[string][]regions.AnnotatedRegionData, err error) {
+	calculateSeparateOverlaps bool,
+) (
+	results *map[string][]regions.AnnotatedRegionData,
+	separateResults *map[string]*map[string][]regions.AnnotatedRegionData,
+	err error,
+) {
 	var normals map[string]string
 	var tumors map[string]string
 
@@ -96,7 +101,7 @@ func calculateOverlaps(
 	}
 
 	if tumorsFileListPath != "" {
-		println("Filtering tumor regions with normal...")
+		fmt.Println("Filtering tumor regions with normal...")
 
 		regions.FilterOverlapsWithNormals(normalRegions, tumorRegions)
 
@@ -110,6 +115,12 @@ func calculateOverlaps(
 	annotatedRegions := regions.AnnotateOverlaps(bed, files, intermediateResults, options, writerOptions)
 
 	results = annotatedRegions
+
+	if calculateSeparateOverlaps {
+		fmt.Print("Separating overlaps per sample file...\n\n")
+
+		separateResults, err = regions.SeparateOverlaps(annotatedRegions, files, options)
+	}
 
 	return
 }

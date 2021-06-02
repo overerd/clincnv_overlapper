@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	version = "0.0.5"
+	version = "0.0.6"
 	build   = "0"
 )
 
@@ -35,14 +35,18 @@ func main() {
 
 	fmt.Println(fmt.Sprintf("Starting %s...", appString))
 
-	options, writerOptions := setup()
+	options, writerOptions, dirWriterOptions, err := setup()
 
-	run(options, writerOptions)
+	if err != nil {
+		invokeError(err)
+	}
+
+	invokeError(run(options, writerOptions, dirWriterOptions))
 
 	println()
 }
 
-func setup() (options regions.Options, writerOptions regions.WriterOptions) {
+func setup() (options regions.Options, writerOptions, dirWriterOptions regions.WriterOptions, err error) {
 	parser := argparse.NewParser(os.Args[0], AppDescription)
 
 	normalsFileListPath := parser.String("n", "normals", &argparse.Options{
@@ -83,6 +87,11 @@ func setup() (options regions.Options, writerOptions regions.WriterOptions) {
 		Help:     "output regions file",
 	})
 
+	outputDirPath := parser.String("d", "output-directory", &argparse.Options{
+		Required: false,
+		Help:     "output regions file",
+	})
+
 	outputSeparator := parser.String("s", "output-separator", &argparse.Options{
 		Required: false,
 		Help:     "output file separator",
@@ -118,14 +127,31 @@ func setup() (options regions.Options, writerOptions regions.WriterOptions) {
 		invokeError(errors.New("-m|--min-overlap should be >= 1"))
 	}
 
+	if *outputDirPath != "" {
+		info, err := os.Stat(*outputDirPath)
+
+		if os.IsNotExist(err) {
+			err = errors.New(fmt.Sprintf("Path '%s' does not exist", *outputDirPath))
+
+			return options, writerOptions, dirWriterOptions, err
+		}
+
+		if !info.IsDir() {
+			err = errors.New(fmt.Sprintf("Path '%s' is not a directory", *outputDirPath))
+
+			return options, writerOptions, dirWriterOptions, err
+		}
+	}
+
 	var geneFilter *regexp.Regexp
-	var err error
 
 	if *geneFiltersFile != "" {
 		geneFilter, err = readFiltersFile(*geneFiltersFile)
-	}
 
-	invokeError(err)
+		if err != nil {
+			return
+		}
+	}
 
 	options = regions.Options{
 		BedPath:             *bedPath,
@@ -145,6 +171,12 @@ func setup() (options regions.Options, writerOptions regions.WriterOptions) {
 
 	writerOptions = regions.WriterOptions{
 		Path:           *outputPath,
+		Separator:      *outputSeparator,
+		FieldSeparator: *outputFieldSeparator,
+	}
+
+	dirWriterOptions = regions.WriterOptions{
+		Path:           *outputDirPath,
 		Separator:      *outputSeparator,
 		FieldSeparator: *outputFieldSeparator,
 	}
@@ -193,9 +225,8 @@ func readFiltersFile(path string) (result *regexp.Regexp, err error) {
 	return
 }
 
-func run(options regions.Options, writerOptions regions.WriterOptions) {
+func run(options regions.Options, writerOptions regions.WriterOptions, dirWriterOptions regions.WriterOptions) (err error) {
 	var bedFile *bed.File
-	var err error
 
 	err = options.Validate()
 
@@ -215,7 +246,7 @@ func run(options regions.Options, writerOptions regions.WriterOptions) {
 		bedFile, err = loadBEDFile(options)
 
 		if err != nil {
-			invokeError(err)
+			return
 		}
 
 		fmt.Println(fmt.Sprintf(" \n%d lines loaded", len(bedFile.Items)))
@@ -223,25 +254,42 @@ func run(options regions.Options, writerOptions regions.WriterOptions) {
 		println()
 	}
 
-	overlaps, err := calculateOverlaps(
+	overlaps, separateOverlaps, err := calculateOverlaps(
 		bedFile,
 		options.NormalsFileListPath,
 		options.TumorsFileListPath,
 		options,
 		writerOptions,
+		dirWriterOptions.Path != "",
 	)
 
 	if err != nil {
-		invokeError(err)
+		return
 	}
+
+	fmt.Println(fmt.Sprintf(" \nWriting regions to '%s'...\n", writerOptions.Path))
 
 	writer := regions.CreateCSVWriter(writerOptions)
 
 	err = writer.WriteRegions(overlaps)
 
 	if err != nil {
-		invokeError(err)
+		return
+	}
+
+	if dirWriterOptions.Path != "" {
+		fmt.Println(fmt.Sprintf(" \nWriting separate regions to directory '%s'...\n", dirWriterOptions.Path))
+
+		multiWriter := regions.CreateMultiCSVWriter(dirWriterOptions)
+
+		err = multiWriter.WriteSamples(separateOverlaps)
+
+		if err != nil {
+			return
+		}
 	}
 
 	println("\nDone!\n")
+
+	return
 }

@@ -61,7 +61,13 @@ func renameGenes(genes *[]string) (err error) {
 	return
 }
 
-func AnnotateOverlaps(bed *bed.File, files *[]*clincnv.TableFile, regions *map[string][]RegionData, options Options, writerOptions WriterOptions) (r *map[string][]AnnotatedRegionData) {
+func AnnotateOverlaps(
+	bed *bed.File,
+	files *[]*clincnv.TableFile,
+	regions *map[string][]RegionData,
+	options Options,
+	writerOptions WriterOptions,
+) (r *map[string][]AnnotatedRegionData) {
 	results := make(map[string][]AnnotatedRegionData)
 
 	for chr, regions := range *regions {

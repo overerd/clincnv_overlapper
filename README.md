@@ -26,6 +26,7 @@ go install github.com/overerd/clincnv_overlapper@latest
 * `-x|--genes-exclude-filter` provides multiline file with exclude patterns for gene names.
 * `-f|--output-field-separator` provides a string for separation fields in genes and samples columns (default: " | ").
 * `-s|--output-separator` provides a string for columns separation (default: "\t").
+* `-d|--output-directory` provides a string for output directory for separate bed files for each region.
 
 ### Example
 
@@ -41,5 +42,6 @@ clincnv_overlapper \
     --max-qvalue 0.05 \
     --output-field-separator "; " \
     --output-separator "\t" \
+    --output-directory "data/output_samples" \
     --output data/clincnv_overlaps.tsv
 ```
