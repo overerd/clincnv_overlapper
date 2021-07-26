@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	version = "0.0.6"
+	version = "0.0.7"
 	build   = "0"
 )
 
@@ -121,6 +121,11 @@ func setup() (options regions.Options, writerOptions, dirWriterOptions regions.W
 		Help:     "run with single target in normals",
 	})
 
+	useBonferroniCorrection := parser.Flag("", "bonferroni-correction", &argparse.Options{
+		Required: false,
+		Help:     "correct max q-value with number of regions for each chromosome group",
+	})
+
 	invokeError(parser.Parse(os.Args))
 
 	if *minOverlap < 1 {
@@ -161,6 +166,8 @@ func setup() (options regions.Options, writerOptions, dirWriterOptions regions.W
 		MinOverlap:    uint16(*minOverlap),
 		MaxQValue:     float32(*maxQValue),
 		SingleRunMode: *singleFlag,
+
+		UseBonferroniCorrection: *useBonferroniCorrection,
 
 		BedGeneIndex: uint(*bedGeneColumnIndex),
 

@@ -26,15 +26,27 @@ func SeparateOverlaps(
 
 		results[file.Options.Name] = &sampleRegions
 
+		correctionPowerSize := 0
+
+		for _, regions := range *regions {
+			correctionPowerSize += len(regions)
+		}
+
 		for chr, chrRegions := range *regions {
 			prevItem = &clincnv.Item{}
 			prevState = 255
+
+			correctedQValue := options.MaxQValue
+
+			if options.UseBonferroniCorrection {
+				correctedQValue /= float32(correctionPowerSize)
+			}
 
 			for _, region := range chrRegions {
 				items = file.FindIntervalItems(chr, region.Start, region.End)
 
 				for _, item := range items {
-					if item.Start >= region.End || item.End <= region.Start || item.QValue > options.MaxQValue {
+					if item.Start >= region.End || item.End <= region.Start || item.QValue > correctedQValue || item.LogLikelihood < 1 {
 						continue
 					}
 

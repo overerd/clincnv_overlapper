@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/overerd/clincnv_overlapper/models/bed"
 	"github.com/overerd/clincnv_overlapper/models/clincnv"
+	"hash/crc32"
 	"regexp"
 	"sort"
 	"strings"
@@ -70,31 +71,27 @@ func AnnotateOverlaps(
 ) (r *map[string][]AnnotatedRegionData) {
 	results := make(map[string][]AnnotatedRegionData)
 
+	correctionPowerSize := 0
+
+	crcTable := crc32.MakeTable(23)
+
+	for _, regions := range *regions {
+		correctionPowerSize += len(regions)
+	}
+
 	for chr, regions := range *regions {
 		results[chr] = make([]AnnotatedRegionData, len(regions))
+
+		correctedQValue := options.MaxQValue
+
+		if options.UseBonferroniCorrection {
+			correctedQValue /= float32(correctionPowerSize)
+		}
 
 		for i := range regions {
 			item := &results[chr][i]
 
 			item.RegionData = &regions[i]
-
-			if bed != nil {
-				if genes := bed.SelectAllGenes(chr, item.Start, item.End); len(genes) > 0 {
-					if options.GeneRegexFilter != nil {
-						filterGenes(&genes, options.GeneRegexFilter)
-					}
-
-					err := renameGenes(&genes)
-
-					if err != nil {
-						fmt.Errorf("%s", err.Error())
-					}
-
-					sort.Strings(genes)
-
-					item.Genes = strings.Join(genes, writerOptions.FieldSeparator)
-				}
-			}
 
 			for _, file := range *files {
 				if found, fileItem := file.FindClosestItem(chr, item.Start, item.End); found {
@@ -104,17 +101,21 @@ func AnnotateOverlaps(
 						(*fileItem).CNChange,
 					)
 
-					if fileItem.QValue <= options.MaxQValue {
+					if fileItem.QValue <= correctedQValue && fileItem.LogLikelihood >= 1 {
 						item.Samples = append(item.Samples, sampleString)
 					}
 				}
 			}
 
 			sort.Strings(item.Samples)
+
+			item.SamplesHash = crc32.Checksum([]byte(strings.Join(item.Samples, ";")), crcTable)
 		}
 	}
 
 	var keysToDelete []string
+
+	minOverlaps := int(options.MinOverlap)
 
 	for chr, regions := range results {
 		if len(regions) == 0 {
@@ -125,9 +126,17 @@ func AnnotateOverlaps(
 
 		indexesToDelete := make([]int, 0)
 
+		pRegion := &AnnotatedRegionData{}
+
 		for i, item := range regions {
-			if len(item.Samples) <= 1 && !options.SingleRunMode {
+			if len(item.Samples) <= minOverlaps && !options.SingleRunMode {
 				indexesToDelete = append(indexesToDelete, i)
+			} else {
+				if pRegion.SamplesHash == item.SamplesHash && pRegion.End >= item.Start {
+					indexesToDelete = append(indexesToDelete, i)
+				} else {
+					pRegion = &item
+				}
 			}
 		}
 
@@ -150,6 +159,28 @@ func AnnotateOverlaps(
 				}
 			} else {
 				regions = append(regions[:index], regions[index+1:]...)
+			}
+		}
+
+		if bed != nil {
+			for i := range regions {
+				item := &results[chr][i]
+
+				if genes := bed.SelectAllGenes(chr, item.Start, item.End); len(genes) > 0 {
+					if options.GeneRegexFilter != nil {
+						filterGenes(&genes, options.GeneRegexFilter)
+					}
+
+					err := renameGenes(&genes)
+
+					if err != nil {
+						fmt.Errorf("%s", err.Error())
+					}
+
+					sort.Strings(genes)
+
+					item.Genes = strings.Join(genes, writerOptions.FieldSeparator)
+				}
 			}
 		}
 

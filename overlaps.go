@@ -79,6 +79,8 @@ func calculateOverlaps(
 			SingleRunMode: options.SingleRunMode,
 			BufferSize:    options.BufferSize,
 			BedGeneIndex:  options.BedGeneIndex,
+
+			UseBonferroniCorrection: options.UseBonferroniCorrection,
 		})
 
 		if err != nil {
@@ -94,6 +96,8 @@ func calculateOverlaps(
 		MaxQValue:     options.MaxQValue,
 		SingleRunMode: options.SingleRunMode,
 		BufferSize:    options.BufferSize,
+
+		UseBonferroniCorrection: options.UseBonferroniCorrection,
 	})
 
 	if err != nil {
@@ -101,7 +105,7 @@ func calculateOverlaps(
 	}
 
 	if tumorsFileListPath != "" {
-		fmt.Println("Filtering tumor regions with normal...")
+		fmt.Println("\n\nFiltering tumor regions with normal...")
 
 		regions.FilterOverlapsWithNormals(normalRegions, tumorRegions)
 

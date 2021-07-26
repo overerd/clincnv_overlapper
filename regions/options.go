@@ -15,6 +15,8 @@ type Options struct {
 	MinOverlap uint16
 	MaxQValue  float32
 
+	UseBonferroniCorrection bool
+
 	BedGeneIndex uint
 
 	BufferSize uint

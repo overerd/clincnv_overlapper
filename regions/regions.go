@@ -14,6 +14,8 @@ type AnnotatedRegionData struct {
 
 	Samples []string
 
+	SamplesHash uint32
+
 	Genes string
 }
 
@@ -50,14 +52,29 @@ func (s *Overlapper) calculateRegions(positions *map[string][]uint64) (regions m
 
 func (s *Overlapper) calculateRegionPowers(regions *map[string][]RegionData) {
 	for _, file := range s.files {
+		correctionPowerSize := 0
+		correctedQValue := s.options.MaxQValue
+
+		for _, items := range file.Chromosomes {
+			correctionPowerSize += len(items)
+		}
+
+		if correctionPowerSize == 0 {
+			continue
+		}
+
+		if s.options.UseBonferroniCorrection {
+			correctedQValue /= float32(correctionPowerSize)
+		}
+
 		for chr, items := range file.Chromosomes {
-			regions := (*regions)[chr]
+			inputRegions := (*regions)[chr]
 
 			for _, fileRegion := range items {
-				for j := range regions {
-					region := &regions[j]
+				for j := range inputRegions {
+					region := &inputRegions[j]
 
-					if fileRegion.Start <= region.Start && fileRegion.End >= region.End {
+					if fileRegion.Start <= region.Start && fileRegion.End >= region.End && fileRegion.QValue <= correctedQValue && fileRegion.LogLikelihood >= 1 {
 						region.Power++
 					}
 				}
