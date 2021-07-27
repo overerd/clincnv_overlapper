@@ -71,29 +71,28 @@ func AnnotateOverlaps(
 ) (r *map[string][]AnnotatedRegionData) {
 	results := make(map[string][]AnnotatedRegionData)
 
-	correctionPowerSize := 0
-
 	crcTable := crc32.MakeTable(23)
 
-	for _, regions := range *regions {
-		correctionPowerSize += len(regions)
-	}
+	for chr, chrRegions := range *regions {
+		results[chr] = make([]AnnotatedRegionData, len(chrRegions))
 
-	for chr, regions := range *regions {
-		results[chr] = make([]AnnotatedRegionData, len(regions))
-
-		correctedQValue := options.MaxQValue
-
-		if options.UseBonferroniCorrection {
-			correctedQValue /= float32(correctionPowerSize)
-		}
-
-		for i := range regions {
+		for i := range chrRegions {
 			item := &results[chr][i]
 
-			item.RegionData = &regions[i]
+			item.RegionData = &chrRegions[i]
 
 			for _, file := range *files {
+				correctedQValue := options.MaxQValue
+				correctionPowerSize := 0
+
+				for _, fileChrRegions := range *regions {
+					correctionPowerSize += len(fileChrRegions)
+				}
+
+				if options.UseBonferroniCorrection {
+					correctedQValue /= float32(correctionPowerSize)
+				}
+
 				if found, fileItem := file.FindClosestItem(chr, item.Start, item.End); found {
 					sampleString := fmt.Sprintf(
 						"%s (%d)",
@@ -117,8 +116,8 @@ func AnnotateOverlaps(
 
 	minOverlaps := int(options.MinOverlap)
 
-	for chr, regions := range results {
-		if len(regions) == 0 {
+	for chr, chrRegions := range results {
+		if len(chrRegions) == 0 {
 			keysToDelete = append(keysToDelete, chr)
 
 			continue
@@ -128,7 +127,7 @@ func AnnotateOverlaps(
 
 		pRegion := &AnnotatedRegionData{}
 
-		for i, item := range regions {
+		for i, item := range chrRegions {
 			if len(item.Samples) <= minOverlaps && !options.SingleRunMode {
 				indexesToDelete = append(indexesToDelete, i)
 			} else {
@@ -148,22 +147,22 @@ func AnnotateOverlaps(
 			return indexesToDelete[i] > indexesToDelete[j]
 		})
 
-		size := len(regions)
+		size := len(chrRegions)
 
 		for _, index := range indexesToDelete {
 			if index == size-1 {
-				if len(regions) > 1 {
-					regions = regions[:index]
+				if len(chrRegions) > 1 {
+					chrRegions = chrRegions[:index]
 				} else {
-					regions = []AnnotatedRegionData{}
+					chrRegions = []AnnotatedRegionData{}
 				}
 			} else {
-				regions = append(regions[:index], regions[index+1:]...)
+				chrRegions = append(chrRegions[:index], chrRegions[index+1:]...)
 			}
 		}
 
 		if bed != nil {
-			for i := range regions {
+			for i := range chrRegions {
 				item := &results[chr][i]
 
 				if genes := bed.SelectAllGenes(chr, item.Start, item.End); len(genes) > 0 {
@@ -177,16 +176,20 @@ func AnnotateOverlaps(
 						fmt.Errorf("%s", err.Error())
 					}
 
-					sort.Strings(genes)
+					if len(genes) > 0 {
+						sort.Strings(genes)
 
-					item.Genes = strings.Join(genes, writerOptions.FieldSeparator)
+						item.Genes = strings.Join(genes, writerOptions.FieldSeparator)
+					} else {
+						item.Genes = "-"
+					}
 				}
 			}
 		}
 
-		results[chr] = regions
+		results[chr] = chrRegions
 
-		if len(regions) == 0 {
+		if len(chrRegions) == 0 {
 			keysToDelete = append(keysToDelete, chr)
 		}
 	}

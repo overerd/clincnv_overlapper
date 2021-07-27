@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	version = "0.0.7"
+	version = "0.0.8"
 	build   = "0"
 )
 
@@ -51,12 +51,12 @@ func setup() (options regions.Options, writerOptions, dirWriterOptions regions.W
 
 	normalsFileListPath := parser.String("n", "normals", &argparse.Options{
 		Required: true,
-		Help:     "path to a file with '\n' separated file names to each ClinCNV table",
+		Help:     "path to a file with '\\n' separated file names to each ClinCNV table",
 	})
 
 	tumorsFileListPath := parser.String("t", "tumors", &argparse.Options{
 		Required: false,
-		Help:     "path to a file with '\n' separated file names to each ClinCNV table",
+		Help:     "path to a file with '\\n' separated file names to each ClinCNV table",
 	})
 
 	bedPath := parser.String("b", "bed", &argparse.Options{

@@ -28,7 +28,7 @@ func SeparateOverlaps(
 
 		correctionPowerSize := 0
 
-		for _, regions := range *regions {
+		for _, regions := range file.Chromosomes {
 			correctionPowerSize += len(regions)
 		}
 
