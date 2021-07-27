@@ -14,7 +14,7 @@ go install github.com/overerd/clincnv_overlapper@latest
 ### Arguments
 
 #### Required:
-* `-n|--normals` or `-t|--tumors` expect a file with **tab**-separated values like `{SAMPLE}	normal/{SAMPLE}/{SAMPLE}_cnvs.tsv` and `SAMPLE	somatic/{TUMOR}-{NORMAL}/CNAs_{TUMOR}-{NORMAL}.txt` for germline and somatic ClinCNV results respectively for each sample, where `{SAMPLE}`, `{TUMOR}` and `{NORMAL}` are sample codes from coverage matrix. 
+* `-n|--normals` or `-t|--tumors` expect a file with **tab**-separated values like `{SAMPLE}	normal/{SAMPLE}/{SAMPLE}_cnvs.tsv` and `SAMPLE	somatic/{TUMOR}-{NORMAL}/CNAs_{TUMOR}-{NORMAL}.txt` for germline and somatic ClinCNV results respectively for each sample, where `{SAMPLE}`, `{TUMOR}` and `{NORMAL}` are sample codes from *.cov matrix. 
 * `-o|--output` sets path for output file.
 
 #### Optional:
