@@ -80,6 +80,10 @@ func calculateOverlaps(
 			BufferSize:    options.BufferSize,
 			BedGeneIndex:  options.BedGeneIndex,
 
+			MinLogLikelihood: options.MinLogLikelihood,
+
+			MinMedianLogLikelihood: options.MinMedianLogLikelihood,
+
 			UseBonferroniCorrection: options.UseBonferroniCorrection,
 		})
 
@@ -96,6 +100,10 @@ func calculateOverlaps(
 		MaxQValue:     options.MaxQValue,
 		SingleRunMode: options.SingleRunMode,
 		BufferSize:    options.BufferSize,
+
+		MinLogLikelihood: options.MinLogLikelihood,
+
+		MinMedianLogLikelihood: options.MinMedianLogLikelihood,
 
 		UseBonferroniCorrection: options.UseBonferroniCorrection,
 	})

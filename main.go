@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	version = "0.0.8"
+	version = "0.0.9"
 	build   = "0"
 )
 
@@ -74,6 +74,18 @@ func setup() (options regions.Options, writerOptions, dirWriterOptions regions.W
 		Required: false,
 		Help:     "minimum overlap to filter gathered regions for each chromosome",
 		Default:  2,
+	})
+
+	minLogLikelihood := parser.Float("", "min-loglikelihood", &argparse.Options{
+		Required: false,
+		Help:     "minimum loglikelihood to filter gathered regions for each chromosome",
+		Default:  20.0,
+	})
+
+	minMedianLogLikelihood := parser.Float("", "min-median-loglikelihood", &argparse.Options{
+		Required: false,
+		Help:     "minimum median_loglikelihood to filter gathered regions for each chromosome",
+		Default:  0.0,
 	})
 
 	bufferSize := parser.Int("r", "buffer-size", &argparse.Options{
@@ -163,8 +175,12 @@ func setup() (options regions.Options, writerOptions, dirWriterOptions regions.W
 		NormalsFileListPath: *normalsFileListPath,
 		TumorsFileListPath:  *tumorsFileListPath,
 
-		MinOverlap:    uint16(*minOverlap),
-		MaxQValue:     float32(*maxQValue),
+		MinOverlap: uint16(*minOverlap),
+		MaxQValue:  *maxQValue,
+
+		MinLogLikelihood:       *minLogLikelihood,
+		MinMedianLogLikelihood: *minMedianLogLikelihood,
+
 		SingleRunMode: *singleFlag,
 
 		UseBonferroniCorrection: *useBonferroniCorrection,

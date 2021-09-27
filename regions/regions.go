@@ -64,7 +64,7 @@ func (s *Overlapper) calculateRegionPowers(regions *map[string][]RegionData) {
 		}
 
 		if s.options.UseBonferroniCorrection {
-			correctedQValue /= float32(correctionPowerSize)
+			correctedQValue /= float64(correctionPowerSize)
 		}
 
 		for chr, items := range file.Chromosomes {
@@ -74,8 +74,14 @@ func (s *Overlapper) calculateRegionPowers(regions *map[string][]RegionData) {
 				for j := range inputRegions {
 					region := &inputRegions[j]
 
-					if fileRegion.Start <= region.Start && fileRegion.End >= region.End && fileRegion.QValue <= correctedQValue && fileRegion.LogLikelihood >= 1 {
-						region.Power++
+					if fileRegion.Start <= region.Start && fileRegion.End >= region.End {
+						if fileRegion.QValue <= correctedQValue {
+							if fileRegion.LogLikelihood >= s.options.MinLogLikelihood {
+								if fileRegion.MedianLogLikelihood >= s.options.MinMedianLogLikelihood {
+									region.Power++
+								}
+							}
+						}
 					}
 				}
 			}

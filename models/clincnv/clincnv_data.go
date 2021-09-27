@@ -23,24 +23,24 @@ type ChromosomeData struct {
 	State               State   `json:"state"`
 	MajorCNAllele       uint32  `json:"major_cn_allele"`
 	MinorCNAllele       uint32  `json:"minor_cn_allele"`
-	TumorClonality      float32 `json:"tumor_clonality"`
+	TumorClonality      float64 `json:"tumor_clonality"`
 	MajorCNAllele2      uint32  `json:"major_cn_allele2"`
 	MinorCNAllele2      uint32  `json:"minor_cn_allele2"`
-	TumorClonality2     float32 `json:"tumor_clonality2"`
+	TumorClonality2     float64 `json:"tumor_clonality2"`
 	LogLikelihood       float64 `json:"log_likelihood"`
 	MedianLogLikelihood float64 `json:"median_log_likelihood"`
 	NoOfRegions         uint32  `json:"no_of_regions"`
-	Length              float32 `json:"length"`
-	Potential           float32 `json:"potential"`
+	Length              float64 `json:"length"`
+	Potential           float64 `json:"potential"`
 	Genes               string  `json:"genes"`
-	OnTargetRDCILower   float32 `json:"Ontarget_RD_CI_lower"`
-	OnTargetRDCIUpper   float32 `json:"Ontarget_RD_CI_upper"`
-	OffTargetRDCILower  float32 `json:"Offtarget_RD_CI_lower"`
-	OffTargetRDCIUpper  float32 `json:"Offtarget_RD_CI_upper"`
-	LowMedTumorBAF      float32 `json:"Lowmed_tumor_BAF"`
-	HighMedTumorBAF     float32 `json:"Highmed_tumor_BAF"`
-	BAFQValueFDR        float32 `json:"BAF_qval_fdr"`
-	QValue              float32 `json:"q_value"`
+	OnTargetRDCILower   float64 `json:"Ontarget_RD_CI_lower"`
+	OnTargetRDCIUpper   float64 `json:"Ontarget_RD_CI_upper"`
+	OffTargetRDCILower  float64 `json:"Offtarget_RD_CI_lower"`
+	OffTargetRDCIUpper  float64 `json:"Offtarget_RD_CI_upper"`
+	LowMedTumorBAF      float64 `json:"Lowmed_tumor_BAF"`
+	HighMedTumorBAF     float64 `json:"Highmed_tumor_BAF"`
+	BAFQValueFDR        float64 `json:"BAF_qval_fdr"`
+	QValue              float64 `json:"q_value"`
 }
 
 func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
@@ -86,13 +86,13 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 
 		normCNChange := string(groups[PosSomaticCNChange])
 
-		logLikelihood, err = strconv.ParseFloat(string(groups[PosSomaticLogLikelihood]), 32)
+		logLikelihood, err = strconv.ParseFloat(string(groups[PosSomaticLogLikelihood]), 64)
 
 		if err != nil {
 			return
 		}
 
-		medianLogLikelihood, err = strconv.ParseFloat(string(groups[PosSomaticMedianLogLikelihood]), 32)
+		medianLogLikelihood, err = strconv.ParseFloat(string(groups[PosSomaticMedianLogLikelihood]), 64)
 
 		if err != nil {
 			return
@@ -116,7 +116,7 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 			return
 		}
 
-		tumorClonality, err = strconv.ParseFloat(string(groups[PosSomaticTumorClonality]), 32)
+		tumorClonality, err = strconv.ParseFloat(string(groups[PosSomaticTumorClonality]), 64)
 
 		if err != nil {
 			return
@@ -145,7 +145,7 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		tumorClonality2Str := string(groups[PosSomaticTumorClonality2])
 
 		if tumorClonality2Str != "" {
-			tumorClonality2, err = strconv.ParseFloat(tumorClonality2Str, 32)
+			tumorClonality2, err = strconv.ParseFloat(tumorClonality2Str, 64)
 
 			if err != nil {
 				return
@@ -155,7 +155,7 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		onTargetRDCILowerStr := string(groups[PosSomaticOnTargetRDCILower])
 
 		if strings.ToLower(onTargetRDCILowerStr) != "na" && onTargetRDCILowerStr != "" {
-			onTargetRDCILower, err = strconv.ParseFloat(onTargetRDCILowerStr, 32)
+			onTargetRDCILower, err = strconv.ParseFloat(onTargetRDCILowerStr, 64)
 
 			if err != nil {
 				return
@@ -165,7 +165,7 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		onTargetRDCIUpperStr := string(groups[PosSomaticOnTargetRDCIUpper])
 
 		if strings.ToLower(onTargetRDCIUpperStr) != "na" && onTargetRDCIUpperStr != "" {
-			onTargetRDCIUpper, err = strconv.ParseFloat(onTargetRDCIUpperStr, 32)
+			onTargetRDCIUpper, err = strconv.ParseFloat(onTargetRDCIUpperStr, 64)
 
 			if err != nil {
 				return
@@ -175,7 +175,7 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		offTargetRDCILowerStr := string(groups[PosSomaticOffTargetRDCILower])
 
 		if strings.ToLower(offTargetRDCILowerStr) != "na" && offTargetRDCILowerStr != "" {
-			offTargetRDCILower, err = strconv.ParseFloat(offTargetRDCILowerStr, 32)
+			offTargetRDCILower, err = strconv.ParseFloat(offTargetRDCILowerStr, 64)
 
 			if err != nil {
 				return
@@ -185,7 +185,7 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		offTargetRDCIUpperStr := string(groups[PosSomaticOffTargetRDCIUpper])
 
 		if strings.ToLower(offTargetRDCIUpperStr) != "na" && offTargetRDCIUpperStr != "" {
-			offTargetRDCIUpper, err = strconv.ParseFloat(offTargetRDCIUpperStr, 32)
+			offTargetRDCIUpper, err = strconv.ParseFloat(offTargetRDCIUpperStr, 64)
 
 			if err != nil {
 				return
@@ -195,7 +195,7 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		lowMedTumorBAFStr := string(groups[PosSomaticLowMedTumorBAF])
 
 		if strings.ToLower(lowMedTumorBAFStr) != "na" && lowMedTumorBAFStr != "" {
-			lowMedTumorBAF, err = strconv.ParseFloat(lowMedTumorBAFStr, 32)
+			lowMedTumorBAF, err = strconv.ParseFloat(lowMedTumorBAFStr, 64)
 
 			if err != nil {
 				return
@@ -205,7 +205,7 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		highMedTumorBAFStr := string(groups[PosSomaticHighMedTumorBAF])
 
 		if strings.ToLower(highMedTumorBAFStr) != "na" && highMedTumorBAFStr != "" {
-			highMedTumorBAF, err = strconv.ParseFloat(highMedTumorBAFStr, 32)
+			highMedTumorBAF, err = strconv.ParseFloat(highMedTumorBAFStr, 64)
 
 			if err != nil {
 				return
@@ -215,14 +215,14 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		bafQValueFDRStr := string(groups[PosSomaticBAFQValueFDR])
 
 		if strings.ToLower(bafQValueFDRStr) != "na" && bafQValueFDRStr != "" {
-			bafQValueFDR, err = strconv.ParseFloat(bafQValueFDRStr, 32)
+			bafQValueFDR, err = strconv.ParseFloat(bafQValueFDRStr, 64)
 
 			if err != nil {
 				return
 			}
 		}
 
-		overallQValue, err = strconv.ParseFloat(strings.ReplaceAll(string(groups[PosSomaticOverallQValue]), " ", ""), 32)
+		overallQValue, err = strconv.ParseFloat(strings.ReplaceAll(string(groups[PosSomaticOverallQValue]), " ", ""), 64)
 
 		if err != nil {
 			return
@@ -233,22 +233,22 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		p.State = state
 		p.MajorCNAllele = uint32(majorCNAllele)
 		p.MinorCNAllele = uint32(minorCNAllele)
-		p.TumorClonality = float32(tumorClonality)
+		p.TumorClonality = tumorClonality
 		p.MajorCNAllele2 = uint32(majorCNAllele2)
 		p.MinorCNAllele2 = uint32(minorCNAllele2)
-		p.TumorClonality2 = float32(tumorClonality2)
+		p.TumorClonality2 = tumorClonality2
 		p.LogLikelihood = logLikelihood
 		p.MedianLogLikelihood = medianLogLikelihood
 		p.NoOfRegions = uint32(noOfRegions)
 		p.Genes = string(groups[PosSomaticGenes])
-		p.OnTargetRDCILower = float32(onTargetRDCILower)
-		p.OnTargetRDCIUpper = float32(onTargetRDCIUpper)
-		p.OffTargetRDCILower = float32(offTargetRDCILower)
-		p.OffTargetRDCIUpper = float32(offTargetRDCIUpper)
-		p.LowMedTumorBAF = float32(lowMedTumorBAF)
-		p.HighMedTumorBAF = float32(highMedTumorBAF)
-		p.BAFQValueFDR = float32(bafQValueFDR)
-		p.QValue = float32(overallQValue)
+		p.OnTargetRDCILower = onTargetRDCILower
+		p.OnTargetRDCIUpper = onTargetRDCIUpper
+		p.OffTargetRDCILower = offTargetRDCILower
+		p.OffTargetRDCIUpper = offTargetRDCIUpper
+		p.LowMedTumorBAF = lowMedTumorBAF
+		p.HighMedTumorBAF = highMedTumorBAF
+		p.BAFQValueFDR = bafQValueFDR
+		p.QValue = overallQValue
 
 		if strings.ToLower(p.Genes) == "na" {
 			p.Genes = ""
@@ -267,31 +267,31 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 			return
 		}
 
-		logLikelihood, err = strconv.ParseFloat(string(groups[PosGermlineLogLikelihood]), 32)
+		logLikelihood, err = strconv.ParseFloat(string(groups[PosGermlineLogLikelihood]), 64)
 
 		if err != nil {
 			return
 		}
 
-		noOfRegions, err = strconv.ParseUint(string(groups[PosGermlineNoOfRegions]), 10, 32)
+		noOfRegions, err = strconv.ParseUint(string(groups[PosGermlineNoOfRegions]), 10, 64)
 
 		if err != nil {
 			return
 		}
 
-		length, err = strconv.ParseFloat(strings.ReplaceAll(string(groups[PosGermlineLength]), " ", ""), 32)
+		length, err = strconv.ParseFloat(strings.ReplaceAll(string(groups[PosGermlineLength]), " ", ""), 64)
 
 		if err != nil {
 			return
 		}
 
-		potential, err = strconv.ParseFloat(strings.ReplaceAll(string(groups[PosGermlinePotential]), " ", ""), 32)
+		potential, err = strconv.ParseFloat(strings.ReplaceAll(string(groups[PosGermlinePotential]), " ", ""), 64)
 
 		if err != nil {
 			return
 		}
 
-		qValue, err = strconv.ParseFloat(strings.ReplaceAll(string(groups[PosGermlineQValue]), " ", ""), 32)
+		qValue, err = strconv.ParseFloat(strings.ReplaceAll(string(groups[PosGermlineQValue]), " ", ""), 64)
 
 		if err != nil {
 			return
@@ -300,10 +300,10 @@ func (p *ChromosomeData) Fill(groups [][]byte, isSomatic bool) (err error) {
 		p.CNChange = uint8(cNChange)
 		p.LogLikelihood = logLikelihood
 		p.NoOfRegions = uint32(noOfRegions)
-		p.Length = float32(length)
-		p.Potential = float32(potential)
+		p.Length = length
+		p.Potential = potential
 		p.Genes = string(groups[PosGermlineGenes])
-		p.QValue = float32(qValue)
+		p.QValue = qValue
 	}
 
 	return

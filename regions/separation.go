@@ -39,7 +39,7 @@ func SeparateOverlaps(
 			correctedQValue := options.MaxQValue
 
 			if options.UseBonferroniCorrection {
-				correctedQValue /= float32(correctionPowerSize)
+				correctedQValue /= float64(correctionPowerSize)
 			}
 
 			for _, region := range chrRegions {

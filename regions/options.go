@@ -13,7 +13,10 @@ type Options struct {
 	Debug bool
 
 	MinOverlap uint16
-	MaxQValue  float32
+	MaxQValue  float64
+
+	MinLogLikelihood       float64
+	MinMedianLogLikelihood float64
 
 	UseBonferroniCorrection bool
 

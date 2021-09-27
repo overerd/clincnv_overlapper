@@ -90,7 +90,7 @@ func AnnotateOverlaps(
 				}
 
 				if options.UseBonferroniCorrection {
-					correctedQValue /= float32(correctionPowerSize)
+					correctedQValue /= float64(correctionPowerSize)
 				}
 
 				if found, fileItem := file.FindClosestItem(chr, item.Start, item.End); found {

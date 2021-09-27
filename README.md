@@ -14,12 +14,14 @@ go install github.com/overerd/clincnv_overlapper@latest
 ### Arguments
 
 #### Required:
-* `-n|--normals` or `-t|--tumors` expect a file with **tab**-separated values like `{SAMPLE}	normal/{SAMPLE}/{SAMPLE}_cnvs.tsv` and `SAMPLE	somatic/{TUMOR}-{NORMAL}/CNAs_{TUMOR}-{NORMAL}.txt` for germline and somatic ClinCNV results respectively for each sample, where `{SAMPLE}`, `{TUMOR}` and `{NORMAL}` are sample codes from *.cov matrix. 
+* `-n|--normals` or `-t|--tumors` expects a file with **tab**-separated values like `{SAMPLE}	normal/{SAMPLE}/{SAMPLE}_cnvs.tsv` and `SAMPLE	somatic/{TUMOR}-{NORMAL}/CNAs_{TUMOR}-{NORMAL}.txt` for germline and somatic ClinCNV results respectively for each sample, where `{SAMPLE}`, `{TUMOR}` and `{NORMAL}` are sample codes from *.cov matrix. 
 * `-o|--output` sets path for output file.
 
 #### Optional:
 * `-m|--min-overlap` sets filter for minimum overlap power to select final regions (default: 2).
 * `--max-qvalue` provides filtration with maximum QValue (default: 1.0).
+* `--min-loglikelihood` provides filtration with minimum loglikelihood (default: 20.0).
+* `--min-median-loglikelihood` provides filtration with minimum median_loglikelihood (default: 0.0).
 * `--bonferroni-correction` applies Bonferroni correction to MaxQValue sample-wise.
 * `-b|--bed your_panel.bed` provides bed file for regions gene annotation.
 * `--bed-gene-index` shows program what column is to be used from bed file for regions gene annotation (default: 4).
@@ -41,6 +43,7 @@ clincnv_overlapper \
     --min-overlap 2 \
     --buffer-size 1048576 \
     --max-qvalue 0.05 \
+    --min-loglikelihood 40 \
     --bonferroni-correction \
     --output-field-separator "; " \
     --output-separator "\t" \
